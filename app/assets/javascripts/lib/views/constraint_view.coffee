@@ -3,7 +3,7 @@ class @ConstraintView extends Backbone.View
     @id = "constraint_#{@model.get('id')}"
     @dom_id = "##{@id}"
     @element = $(@dom_id)
-    @arrow_element = $('.arrow', @dom_id)
+    @arrow_element = $('.menu_arrow', @dom_id)
     @element.bind('mousedown', @open_popup)
     @model.bind('change:result', @render)
     @model.view = this
@@ -100,7 +100,7 @@ class @ConstraintView extends Backbone.View
   updateArrows: () =>
     diff = @model.calculate_diff @model.get('result'), @model.get('previous_result')
     return false if (diff == undefined || diff == null)
-    arrow_element = $('.arrow', @dom_id)
+    arrow_element = $('.menu_arrow', @dom_id)
     @cleanArrows()
 
     return false unless diff && Math.abs(diff)
@@ -122,5 +122,5 @@ class @ConstraintView extends Backbone.View
     )
 
   cleanArrows:() =>
-    arrow_element = $('.arrow', @dom_id)
+    arrow_element = $('.menu_arrow', @dom_id)
     arrow_element.removeClass('arrow_neutral arrow_down arrow_up')
