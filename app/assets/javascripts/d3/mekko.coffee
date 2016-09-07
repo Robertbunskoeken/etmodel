@@ -94,10 +94,9 @@ D3.mekko =
       @series_height = @height - legend_height - label_height - label_margin
       @label_offset = @series_height + label_margin
 
-      @svg = @create_svg_container @width, @height, @margins
+      @svg = @create_svg_container @width, @series_height + label_height, @margins
 
       @draw_legend
-        svg: @svg
         series: @carrier_list.models
         width: @width
         vertical_offset: @series_height + label_height
