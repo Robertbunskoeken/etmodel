@@ -179,7 +179,7 @@ D3.mekko =
       #
       @svg.selectAll("g.sector")
         .data(@sector_list.models, (d) -> d.get 'key' )
-        .transition().duration(500)
+        # .transition().duration(500)
         .attr("transform", (d) =>
           old = @sector_offset
           @sector_offset += @x d.total_value()
@@ -190,7 +190,7 @@ D3.mekko =
       #
       sector_label = @svg.selectAll("g.sector_label")
         .data(@sector_list.models, (d) -> d.get 'key' )
-        .transition().duration(500)
+        # .transition().duration(500)
         .attr('transform', (d) => "translate(#{@x(d.total_value() / 2)}, #{@label_offset})")
         .select('text')
 
@@ -208,7 +208,7 @@ D3.mekko =
       #
       @svg.selectAll(".carrier")
         .data(@node_list.models, (d) -> d.key())
-        .transition().duration(500)
+        # .transition().duration(500)
         .attr("width", (d) => @x d.sector.total_value() )
         .attr("height", (d) =>
           x = d.val() / d.sector.total_value() * @series_height
@@ -222,6 +222,56 @@ D3.mekko =
           old
         )
         .attr("data-tooltip-text", (d) => @main_formatter()(d.val()))
+
+      @arrangeLabels()
+
+    # Arranges the labels for each sector so that no labels overlap.
+    #
+    # Tests the position of each label against every other label and moves any
+    # which overlap until there are no more overlaps.
+    arrangeLabels: =>
+      # Defines the left- and right-most edges of the chart. Labels will not be
+      # permitted outside these limits
+      maxLeft  = @svg[0][0].getBoundingClientRect().left + 20 # + 20 for axis.
+      maxRight = @svg[0][0].getBoundingClientRect().right
+
+      # Assumes that selectAll returns labels in the order they appear in the
+      # DOM (i.e. left-to-right).
+      labels = @svg.selectAll('g.sector_label')[0]
+
+      # Iterates through label 1..n, providing the position of the label and the
+      # previous label to a "value" function which may return by how much to
+      # move the label in order to resolve a collision with the previous.
+      moveLabels = (labels, value) ->
+        labels.reduce (prevLabel, label) ->
+          prevRect = prevLabel.getBoundingClientRect()
+          rect     = label.getBoundingClientRect()
+          moveBy   = value(prevRect, rect)
+
+          if moveBy
+            el = d3.transform(d3.select(label).attr('transform'))
+            el.translate = [el.translate[0] + moveBy, el.translate[1]]
+
+            # Prevent moving the label beyond the right- or left-most edges of
+            # the chart.
+            if (rect.right + moveBy) > maxRight
+              el.translate[0] -= ((rect.right + moveBy) - maxRight)
+            else if (rect.left + moveBy) < maxLeft
+              el.translate[0] += (maxLeft - (rect.left + moveBy))
+
+            d3.select(label).attr('transform', 'translate('+ el.translate + ')')
+
+          # The current label becomes prevLabel in the next iteration.
+          return label
+
+      # Arrange labels left-to-right.
+      moveLabels labels, (previous, current) ->
+        previous.right - current.left if previous.right > current.left
+
+      # Arrange labels right-to-left (to fix any smushed up against the right
+      # side of the chart).
+      moveLabels labels.reverse(), (previous, current) ->
+        previous.left - current.right if previous.left < current.right
 
 # Pseudo-collection of nodes
 #
