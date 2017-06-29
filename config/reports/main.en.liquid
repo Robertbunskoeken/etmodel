@@ -9,17 +9,10 @@
         <tbody>
           <tr>
             <td>Targets and goals</td>
-            <td>-</td>
-            <td>6</td>
-            <td>4/6 RED</td>
+            <td>0/6</td>
+            <td>4/6</td>
+            <td>6 Tagets set RED</td>
             <td><a href="#Targets-and-goals">Targets</a></td>
-          </tr>
-          <tr>
-              <td>Total energy</td>
-              <td>{{ present.dashboard_energy_demand_primary_of_final | autoscale: 'MJ' }}</td>
-              <td>{{ future.dashboard_energy_demand_primary_of_final | autoscale: 'MJ' }}</td>
-              <td>3 EJ GREEN</td>
-              <td><a href="#Energy-use-and-production">Energy use</a></td></tr>
           </tr>
           <tr>
               <td>CO2-emissions</td>
@@ -29,16 +22,17 @@
               <td><a href="#CO2-emissions">CO2-emissions</a></td></tr>
           </tr>
           <tr>
-              <td>Curtailed electricity</td>
-              <td>{{ present.electricity_curtailed  }}</td>
-              <td>{{ future.electricity_curtailed }}</td>
-              <td> 
-                {% if future.electricity_curtailed.value > 0 %} 
-                  RED 
+              <td>Renewabilty</td>
+              <td>{{ present.dashboard_renewability | times: 100 | round: 1 | without_unit }}%</td>
+              <td>{{ future.dashboard_renewability | times: 100 | round: 1 | without_unit }}%</td>
+              <td>
+                {% if future.policy_goal_renewable_percentage_reached.value %}
+                   {{ future.policy_goal_renewable_percentage_target_value | times: 100 | round: 1 }}% GREEN
                 {% else %} 
-                  GREEN
-                {% endif %}</td>
-              <td><a href="#Suggestions-for-improvement">Suggestions for improvement</a></td></tr>
+                   {{ future.policy_goal_renewable_percentage_target_value | times: 100 | round: 1 }}% RED
+                {% endif %}
+              </td>
+              <td><a href="#Renewability">Renewability</a></td></tr>
           </tr>
           <tr>
               <td>Costs</td>
@@ -53,72 +47,109 @@
               </td>
               <td><a href="#Costs-of-energy">Costs of energy</a></td></tr>
           </tr>
+          <tr>
+              <td>Total energy</td>
+              <td>{{ present.dashboard_energy_demand_primary_of_final | autoscale: 'MJ' }}</td>
+              <td>{{ future.dashboard_energy_demand_primary_of_final | autoscale: 'MJ' }}</td>
+              <td>-</td>
+              <td><a href="#Energy-use-and-production">Energy use</a></td></tr>
+          </tr>
+          <tr>
+              <td>Curtailed electricity</td>
+              <td>{{ present.electricity_curtailed  }}</td>
+              <td>{{ future.electricity_curtailed }}</td>
+              <td> 
+                {% if future.electricity_curtailed.value > 0 %} 
+                  RED 
+                {% else %} 
+                  GREEN
+                {% endif %}</td>
+              <td><a href="#Suggestions-for-improvement">Suggestions for improvement</a></td></tr>
+          </tr>
+          <tr>
+              <td>Blackout hours</td>
+              <td>{{ present.dashboard_blackout_hours | round: 1 }}</td>
+              <td>{{ future.dashboard_blackout_hours | round: 1 }}</td>
+              <td> 
+                {% if future.dashboard_blackout_hours.value %} 
+                  RED
+                {% else %} 
+                  GREEN
+                {% endif %}
+              </td>
+              <td><a href="#Reliability">Reliability</a></td></tr>
+          </tr>
+          <tr>
+              <td>Profitability of power plants</td>
+              <td>-</td>
+              <td>{{ future.profitability_percentage | round: 1 | without_unit }}%</td>
+              <td>-
+              </td>
+              <td><a href="#Profitability-of-power-plants">Profitability</a></td></tr>
+          </tr>
+          <tr>
+              <td>Renewabilty</td>
+              <td>{{ present.dashboard_renewability | times: 100 | round: 1 | without_unit }}%</td>
+              <td>{{ future.dashboard_renewability | times: 100 | round: 1 | without_unit }}%</td>
+              <td>
+                {% if future.policy_goal_renewable_percentage_reached.value %}
+                  GREEN {{ future.policy_goal_renewable_percentage_target_value | times: 100 | round: 1 }}%
+                {% else %} 
+                  RED {{ future.policy_goal_renewable_percentage_target_value | times: 100 | round: 1 }}%
+                {% endif %}
+              </td>
+              <td><a href="#Renewability">Renewability</a></td></tr>
+          </tr>
+          <tr>
+              <td>Bio-footprint [x areable land in region]</td>
+              <td>{{ present.bio_footprint | round: 1 }}</td>
+              <td>{{ future.bio_footprint | round: 1 }}</td>
+              <td>
+                {% if future.bio_footprint.value > 1%}
+                  RED You use more land than your region supports!
+                {% else %} 
+                  GREEN
+                {% endif %}
+              </td>
+              <td><a href="#Bio-footprint">Bio-footprint</a></td></tr>
+          </tr>
+
+          <!-- Relation between EV and refineries and metal industry -->
+          {% if future.ev_percentage > 50 %}
+            {% if future.refinery_percentage > 50 %}
+                  <tr>
+                      <td>Refineries and EVs</td>
+                      <td>EV = {{ present.ev_percentage | round: 1 }}% and Refinery = {{ present.refinery_percentage | round: 1 }}%</td>
+                      <td>EV = {{ future.ev_percentage | round: 1 }}% and Refinery = {{ future.refinery_percentage | round: 1 }}%</td>
+                      <td>There could be a strong correllation!</td>
+                      <td><a href="#Possible-inconsistencies">Inconsistencies</a></td></tr>
+                  </tr>
+
+            {% endif %}
+          {% endif %}
+
+
+        {% if future.share_of_greengas_in_gas_network > 0.05 %}
+
+           <tr>
+              <td>Greengas share in gas network</td>
+              <td>{{ present.share_of_greengas_in_gas_network | times: 100 | round: 1 }}%</td>
+              <td>{{ future.share_of_greengas_in_gas_network | times: 100 | round: 1 }}%</td>
+              <td>
+                {% if future.share_of_greengas_in_gas_network > 0.1 %}
+                  Feeding in more than 10% greengas into the gas network requires large technical investments. RED
+                {% else %} 
+                  GREEN
+                {% endif %}
+              </td>
+
+              <td><a href="#Extreme-assumptions">Extreme assumptions</a></td></tr>
+          </tr>
+
+        {% endif %}
 
         </tbody>
       </table>
-
-
-    {% if future.policy_goal_co2_emissions_target_value.value  %}
-        {% if future.policy_goal_co2_emissions_reached.value %}
-          <p>
-            You have reached your goal of
-            {{ future.policy_goal_co2_emissions_target_value | autoscale: 'MT' }}
-          </p>
-        {% else %}
-          <p>
-            You have only managed to reduce CO2-emissions to
-            {{ future.policy_goal_co2_emissions_value | autoscale: 'MT' }}
-            falling short of your goal of limiting emissions to
-            {{ future.policy_goal_co2_emissions_target_value | autoscale: 'MT' }}.
-            Try to reduce more CO2 by the options listed in the 
-            <a href="#CO2-emissions">CO2-emissions</a> section.
-          </p>                  
-        {% endif %}
-    {% endif %}
-
-
-    {% if future.primary_energy_demand_percentage_wrt_start_year > 95.0 %}
-      <p>
-        In your scenario, primary energy use is still
-        {{ future.primary_energy_demand_percentage_wrt_start_year | round: 1 }}% of its
-        start-year value.
-      </p>
-    {% else %}
-      <p>
-        In your scenario, primary energy use is has been reduced to
-        {{ future.primary_energy_demand_percentage_wrt_start_year | round: 1 }}% of its value in the
-        start-year.
-      </p>
-
-    {% endif %}
-
-
-    {% if future.co2_reduction_percentage > 40.0 %}
-      <p>
-        The realised CO2-reduction of {{ future.co2_reduction_percentage | round: 1 | without_unit }}%
-        exceeds the Dutch national ambition for 2030 of 40%.
-
-      {% if future.co2_reduction_percentage > 80.0 %}
-        Your scenario even surpasses the EU goal of 80% - 95% reduction by 2050!
-      {% endif %}
-      </p>
-    {% else %}
-      <p>
-        The realised CO2-reduction of
-        {{ future.co2_reduction_percentage | round: 1 | without_unit }}%
-        falls short of the Dutch national ambition for 2030 of 40%.
-      </p>
-    {% endif %}
-
-    <p>
-      The renewability percentage of energy consumed in your scenario is
-      {{ future.dashboard_renewability | times: 100 | round: 1 | without_unit }}%.
-    </p>
-
-    <p>
-      Your scenario has {{ future.dashboard_blackout_hours | without_unit }}
-      blackout hours.
-    </p>
 
 </header>
 
@@ -171,13 +202,13 @@
 
       <p>
         In your scenario, primary energy use is still
-        {{ future.primary_energy_demand_percentage_wrt_start_year | round: 2 }}% of its
+        {{ future.primary_energy_demand_percentage_wrt_start_year | round: 1 }}% of its
         start-year value.
       </p>
     {% else %}
       <p>
         In your scenario, primary energy use is has been reduced to
-        {{ future.primary_energy_demand_percentage_wrt_start_year | round: 2 }}% of its value in the
+        {{ future.primary_energy_demand_percentage_wrt_start_year | round: 1 }}% of its value in the
         start-year.
       </p>
 
@@ -445,7 +476,7 @@
   <!-- If net import -->
   {% if future.total_net_energy_import > 0.0 %}
     <p>
-      Your scenario has {{ future.total_net_energy_import | round: 3 | autoscale: 'MJ'}} of net energy import
+      Your scenario has {{ future.total_net_energy_import | round: 1 | autoscale: 'MJ'}} of net energy import
       in the end-year.
     </p>
 
