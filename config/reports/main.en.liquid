@@ -60,7 +60,7 @@
               <td>{{ future.electricity_curtailed }}</td>
               <td> 
                 {% if future.electricity_curtailed.value > 0 %} 
-                  RED 
+                  You can put this electricity to good use! RED 
                 {% else %} 
                   GREEN
                 {% endif %}</td>
@@ -72,7 +72,7 @@
               <td>{{ future.dashboard_blackout_hours | round: 1 }}</td>
               <td> 
                 {% if future.dashboard_blackout_hours.value %} 
-                  RED
+                  Build more electricity back-up capacity or reduce demand. RED
                 {% else %} 
                   GREEN
                 {% endif %}
@@ -81,27 +81,14 @@
           </tr>
           <tr>
               <td>Profitability of power plants</td>
-              <td>-</td>
-              <td>{{ future.profitability_percentage | round: 1 | without_unit }}%</td>
-              <td>-
+              <td colspan="3"> 
+                {{ 100 | minus: future.profitability_percentage | round: 1}}% of powerplants are not profitable in your scenario. 
+                Do you think they are still around in the end-year?
               </td>
               <td><a href="#Profitability-of-power-plants">Profitability</a></td></tr>
           </tr>
           <tr>
-              <td>Renewabilty</td>
-              <td>{{ present.dashboard_renewability | times: 100 | round: 1 | without_unit }}%</td>
-              <td>{{ future.dashboard_renewability | times: 100 | round: 1 | without_unit }}%</td>
-              <td>
-                {% if future.policy_goal_renewable_percentage_reached.value %}
-                  GREEN {{ future.policy_goal_renewable_percentage_target_value | times: 100 | round: 1 }}%
-                {% else %} 
-                  RED {{ future.policy_goal_renewable_percentage_target_value | times: 100 | round: 1 }}%
-                {% endif %}
-              </td>
-              <td><a href="#Renewability">Renewability</a></td></tr>
-          </tr>
-          <tr>
-              <td>Bio-footprint [x areable land in region]</td>
+              <td>Bio-footprint [fraction of areable land]</td>
               <td>{{ present.bio_footprint | round: 1 }}</td>
               <td>{{ future.bio_footprint | round: 1 }}</td>
               <td>
@@ -121,7 +108,7 @@
                       <td>Refineries and EVs</td>
                       <td>EV = {{ present.ev_percentage | round: 1 }}% and Refinery = {{ present.refinery_percentage | round: 1 }}%</td>
                       <td>EV = {{ future.ev_percentage | round: 1 }}% and Refinery = {{ future.refinery_percentage | round: 1 }}%</td>
-                      <td>There could be a strong correllation!</td>
+                      <td>Note that there could be a strong corellation between electric vehicles and the size of the oil refinery sector.</td>
                       <td><a href="#Possible-inconsistencies">Inconsistencies</a></td></tr>
                   </tr>
 
